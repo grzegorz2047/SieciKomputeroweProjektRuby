@@ -1,8 +1,16 @@
-﻿#!/usr/bin/ruby
+#!/usr/bin/ruby
+# encoding: UTF-8
 
 require './ChessServer'
 require './ChessClient'
 require 'io/console'
+
+#
+#	problem kiedy klient sie force rozlacza i nie wysyla IAMALIVe
+# 	stworz klasy do pakietow
+# 	ogarnij czemu klient nie wysyla lub odbiera im alive
+#	
+#
 
 class Main
 	def initialize
