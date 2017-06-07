@@ -16,8 +16,13 @@ class ChessPlayer
 	end
 	
 	def sendToPlayer(msg) 
-		#puts "wysylam do " + @nick + " wiadomosc " + msg + " na ip " + @ip.to_s + " na porcie " + @port.to_s
-		@socket.send msg.encode('utf-8'), 0, @ip, @port 
+		begin
+			puts "wysylam do " + @nick + " wiadomosc " + msg + " na ip " + @ip.to_s + " na porcie " + @port.to_s
+			@socket.send msg.encode('utf-8'), 0, @ip, @port 
+		rescue Exception => e
+			puts e.to_s + " send to player"
+			raise e   
+		end
 	end
 	
 	def checkConnection

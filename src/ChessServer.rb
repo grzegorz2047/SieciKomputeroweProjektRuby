@@ -19,6 +19,7 @@ class ChessServer
 				 
 				begin 
 					if client.isAlive  
+						puts "Wysylam pakiet"
 						client.checkConnection
 					else 
 						puts "client " + client.getNick + " nie odpowiada!"
@@ -56,54 +57,62 @@ class ChessServer
 	
 	def serverListenLoop
 		loop {
-			msg = ""
-			begin # emulate blocking recvfrom
-				p = @socket.recvfrom_nonblock(1024)  #=> ["aaa", ["AF_INET", 33302, "localhost.localdomain", "127.0.0.1"]]
-				msg = p[0].chomp
-			rescue IO::WaitReadable
-				IO.select([@socket])
-				retry
-			end
-			puts "Cos dostalem jako serwer?"
-			puts msg
-			incomingCommand = msg
-			#puts "1"
-			if(!incomingCommand.empty?)
-			#puts "2"
-				args = incomingCommand.split(' ')
-				if args.length == 0 
-					return false
+			begin
+				puts "loopam"
+				msg = ""
+				begin # emulate blocking recvfrom
+					p = @socket.recvfrom_nonblock(1024)  #=> ["aaa", ["AF_INET", 33302, "localhost.localdomain", "127.0.0.1"]]
+					msg = p[0].chomp
+				rescue IO::WaitReadable
+					IO.select([@socket])
+					retry
 				end
-				#puts "3"
-				validated = @validator.validate(args[0])
-				if !validated
-					#puts "4"
-					#msg_src.reply "NIEWIEM"
-				else 
-					#puts "5"
-					if msg.include? "LOGIN"
-						#puts "6"
-						#nick = msg.split(" ")[0]
-						player = ChessPlayer.new(@socket, p[1][2], p[1][1], msg)
-						@listOfConnectedPlayers.push(player)
-						player.sendToPlayer("LOGGEDIN")
-						puts "Gracz " + msg + " polaczyl sie z serwerem!"
-						#puts "7"
+				puts "Cos dostalem jako serwer?"
+				puts msg
+				incomingCommand = msg
+				puts "Otrzymana wiadomosc to: " + msg
+				#puts "1"
+				if(!incomingCommand.empty?)
+				#puts "2"
+					args = incomingCommand.split(';')
+					if args.length == 0 
+						return false
 					end
-					if msg.include? "IMALIVE"
-						#puts "6"
-						#nick = msg.split(" ")[0]
-						@listOfConnectedPlayers.each { |client|
-							client.refreshAlive
-						}
-						 
+					incomingClientId = args[0]
+					puts "3"
+					validated = @validator.validate(args[1])
+					if !validated
+						puts "4"
+						ChessPlayer.new(@socket, p[1][2], p[1][1], incomingClientId).sendToPlayer("NIEWIEM")
+					else 
+						puts "5"
+						if msg.include? "LOGIN"
+							puts "6"
+							#nick = msg.split(" ")[0]
+							player = ChessPlayer.new(@socket, p[1][2], p[1][1], incomingClientId)
+							@listOfConnectedPlayers.push(player)
+							player.sendToPlayer("LOGGEDIN")
+							puts "Gracz " + msg + " polaczyl sie z serwerem!"
+							puts "7"
+						end
+						if msg.include? "IMALIVE"
+							puts "9"
+							@listOfConnectedPlayers.each { |client|
+								if(client.getNick == incomingClientId)
+									client.refreshAlive
+								end
+							}
+							 
+						end
+						
 					end
 					
 				end
-				
+				#puts "8"
+				#msg_src.reply msg
+			rescue Exception => e
+				puts e.to_s + "loop server "
 			end
-			#puts "8"
-			#msg_src.reply msg
 		}
 		#puts "7"
 	end

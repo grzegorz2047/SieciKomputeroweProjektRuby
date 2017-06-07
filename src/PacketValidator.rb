@@ -8,7 +8,7 @@ class PacketValidator
 	end
 	
 	def validate(command)
-		#puts "WALIDUJE " + command
+		puts "WALIDUJE " + command
 		if @validCommands.include?(command.upcase)
 			#puts "PRAWDA"
 			return true
