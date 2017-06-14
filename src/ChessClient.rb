@@ -76,8 +76,8 @@ class ChessClient
 					IO.select([@socket])
 					retry
 				end
-				puts "Cos dostalem jako client?"
-				puts msg
+				#puts "Cos dostalem jako client?"
+				#puts msg
 				incomingCommand = msg
 				if(!incomingCommand.empty?)
 					#puts "2"
@@ -93,7 +93,7 @@ class ChessClient
 						#msg_src.reply "NIEWIEM"
 					else 
 						#puts "5"
-						puts "args0 to " + args[0]
+						#puts "args0 to " + args[0]
 						if args[0].include? "LOGGEDIN"
 							@connected = true
 							@lastPing = Time.now.to_i 
@@ -105,10 +105,26 @@ class ChessClient
 							sendToServer("IMALIVE")
 							
 						end
+						if args[0].include? "USERALREADYCONNECTED"
+							#puts "Mówię, że żyję tam " + " ip: " + p[1][2].to_s + " port: " + p[1][1].to_s
+							@lastPing = Time.now.to_i 
+							puts "Serwer odrzucił połączenie, ponieważ ta nazwa użytkownika już istnieje!"
+							exit(0)
+						end	
+						if args[0].include? "MESSAGE"
+							#puts "Mówię, że żyję tam " + " ip: " + p[1][2].to_s + " port: " + p[1][1].to_s
+							@lastPing = Time.now.to_i 
+							puts msg
+						end			
+						if args[0].include? "ERROR"
+							#puts "Mówię, że żyję tam " + " ip: " + p[1][2].to_s + " port: " + p[1][1].to_s
+							@lastPing = Time.now.to_i 
+							puts msg
+						end
 						
 					end
 				else 
-					puts "NO ELO"
+					#puts "NO ELO"
 				end
 			rescue Exception => e
 				puts e.to_s
